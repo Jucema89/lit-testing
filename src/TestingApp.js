@@ -1,115 +1,267 @@
 import { html, css, LitElement } from 'lit';
-import'./components/input-component/input-app-component.js';
-
+import'./components/input-text-component/input-text-app-component.js';
+import'./components/input-checkbox-component/input-checkbox-app-component.js';
+import './components/select-component/select-app-component.js';
+import './components/input-date-component/input-date-app-component.js';
+import { Styles } from './TestingAppStyle.js';
 export class TestingApp extends LitElement {
-  static styles = css`
-    :host {
-      display: block;
-      padding: 25px;
-      color: var(--testing-app-text-color, #000);
-    }
-  `;
+  static styles = [
+    Styles
+  ]
 
   static properties = {
-    header: { type: String },
-    isActive: { type: Boolean }
+    optionsCivilState: { type: Array },
+    showClients: { type: Boolean },
+    formData: { type: Object },
+    buttonSendDisabled: { type: Boolean },
+    clients: { type: Array }
   };
 
   constructor() {
     super();
-    this.header = 'Hey there';
-    this.isActive = false;
-  }
+    this.showClients = false;
+    this.clients = [];
+    this.buttonSendDisabled = true;
+    this.optionsCivilState = [
+      { value: 'soltero', label: 'Soltero' },
+      { value: 'casado', label: 'Casado' },
+      { value: 'divorciado', label: 'Divorciado' },
+      { value: 'viudo', label: 'Viudo' }
+    ];
 
-  get buttonComponent() {
-    return this.shadowRoot.getElementById('button');
+    this.formData = {
+      codigo: {
+        value: '',
+        valid: false
+      },
+      nombre:{
+        value: '',
+        valid: false
+      },
+      apellidos:{
+        value: '',
+        valid: false
+      },
+      correo:{
+        value: '',
+        valid: false
+      },
+      bornDate:{
+        value: '',
+        valid: false
+      },
+      estadocivil:{
+        value: '',
+        valid: false
+      },
+      acepto:{
+        value: false,
+        valid: false
+      }
+    }
   }
 
   register() {
-   
-    console.log('Registrando...');
-    if(this.isActive){
-      console.log('Active true... ', this.isActive)
-    } else {
-      console.log('Active false... ', this.isActive)
-    }
+    this.clients = [
+      ...this.clients,
+      {
+        id: this.clients.length + 1,
+        ...this.formData
+      }
+    ];
 
-    this.dispatchEvent(new CustomEvent('on-register-event', {
-      detail: 'Hello'
-      // detail: {
-      //   codigo: this.shadowRoot.getElementById('codigo').value,
-      //   nombres: this.shadowRoot.getElementById('nombres').value,
-      //   apellidos: this.shadowRoot.getElementById('apellidos').value,
-      //   correo: this.shadowRoot.getElementById('correo').value,
-      //   fecnac: this.shadowRoot.getElementById('fecnac').value,
-      //   estadocivil: this.shadowRoot.getElementById('estadocivil').value,
-      //   acepto: this.shadowRoot.getElementById('acepto').checked
-      // }
-    }, 
-    {
-      bubbles: true,
-      composed: true
-    }));
+    console.log('clients = ',  this.clients)
+
+    this.formData = {
+      codigo: {
+        value: '',
+        valid: false
+      },
+      nombre:{
+        value: '',
+        valid: false
+      },
+      apellidos:{
+        value: '',
+        valid: false
+      },
+      correo:{
+        value: '',
+        valid: false
+      },
+      bornDate:{
+        value: '',
+        valid: false
+      },
+      estadocivil:{
+        value: '',
+        valid: false
+      },
+      acepto:{
+        value: false,
+        valid: false
+      }
+    }
   }
 
-  _handleInputNombre(e){
-    console.log('Nombre - ', e.detail );
+  viewClients(){
+    this.showClients = !this.showClients
+  }
+
+  _handleInput(e, nameInput){
+    if(e.detail.valid){
+      this.formData[nameInput].value = e.detail.value;
+      this.formData[nameInput].valid = e.detail.valid;
+
+      this.buttonSendDisabled = Object.values(this.formData).some((item) => !item || !item.valid)
+    }
+  }
+
+  _getYears(date){
+    const today = new Date();
+    const bornDate = new Date(date);
+    return today.getFullYear() - bornDate.getFullYear();
+  }
+
+  removeClient(id){
+    this.clients = [...this.clients.filter((client) => client.id !== id)];
   }
 
   _submitData(e){
     console.log('_submitData = ', e)
   }
 
-  render() {
+  render(){
     return html`
-      <h2>${this.header}</h2>
-      <form onsubmit=${this._submitData}>
+     <section class="card" >
+     ${this.showClients ? this._renderClients() : this._renderForm()}
+    </section>
+    `
+  }
+
+  _renderForm() {
+    return html`
+      <form class=${this.showClients ? 'rotate' : ''}>
+        <h2>
+          Registro de Clientes
+        </h2>
         <div>
-          <label>Codigo:</label>
-          <input type="text" id="codigo" name="codigo">
+          <input-text-app
+            id="codigo"
+            name="codigo"
+            label="Codigo"
+            .disabled=${false}
+            .validation=${{required: true, minLength: 3, maxLength: 30}}
+            @on-input-codigo=${(e) => this._handleInput(e, 'codigo')}>
+          </input-text-app>
         </div>
         <div>
-          <!-- <label>Nombres:</label>
-          <input type="text" id="nombres" name="nombres"> -->
-          <input-app
-            id="nombre"
+          <input-text-app
+            id="nombre" 
             name="nombre"
             label="Nombre"
             .disabled=${false}
-            .validation=${{required: true, minLength: 3, maxLength: 10}}
-            @on-input-nombre=${this._handleInputNombre}>
-          </input-app>
+            .validation=${{required: true, minLength: 3, maxLength: 30}}
+            @on-input-nombre=${(e) => this._handleInput(e, 'nombre')}>
+          </input-text-app>
 
         </div>
         <div>
-          <label>Apellidos:</label>
-          <input type="text" id="apellidos" name="apellidos">
+          <input-text-app
+            id="apellidos" 
+            name="apellidos"
+            label="Apellidos"
+            .disabled=${false}
+            .validation=${{required: true, minLength: 3, maxLength: 30}}
+            @on-input-apellidos=${(e) => this._handleInput(e, 'apellidos')}>
+          </input-text-app>
         </div>
         <div>
-          <label>Correo:</label>
-          <input type="text" id="correo" name="correo">
+          <input-text-app
+            id="correo" 
+            name="correo"
+            label="Correo"
+            .disabled=${false}
+            .validation=${{
+              required: true, 
+              minLength: 3, 
+              pattern: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/}
+            }
+            @on-input-correo=${(e) => this._handleInput(e, 'correo')}>
+          </input-text-app>
         </div>
         <div>
-          <label>Fecha de nacimiento:</label>
-          <input type="date" id="fecnac" name="fecnac">
+          <input-date
+            id="bornDate"
+            name="bornDate"
+            label="Fecha de nacimiento"
+            .validation=${{
+              required: true,
+              onlyAfterToday: false
+            }}
+            @on-date-bornDate=${(e) => this._handleInput(e, 'bornDate')}>
+          </input-date>
         </div>
         <div>
-          <select id="estadocivil" name="estadocivil">
-            <option value="soltero">Soltero</option>
-            <option value="casado">Casado</option>
-            <option value="divorciado">Divorciado</option>
-            <option value="viudo">Viudo</option>
-          </select>
+          <select-input
+            id="estadocivil"
+            name="estadocivil"
+            label="Estado Civil"
+            .validation=${{required: true}}
+            placeholder="Seleccione un estado civil"
+            .disabled=${false}
+           .options=${this.optionsCivilState}
+           @on-select-estadocivil=${(e) => this._handleInput(e, 'estadocivil')}>
+          </select-input>
         </div>
         <div>
-          <input type="checkbox" id="acepto" name="acepto">
-          <label for="acepto">Acepto los terminos y condiciones</label>
+          <input-checkbox-app
+            id="acepto"
+            name="acepto"
+            label="Acepto los terminos y condiciones"
+            @on-checked-acepto=${(e) => this._handleInput(e, 'acepto')}>
+          </input-checkbox-app>
         </div>
-  
-        <button type="submit" >Registrar</button>
-
+        <div class="actions">
+          <button class="send" id="button" type="button" 
+            .disabled=${this.buttonSendDisabled} 
+            @click=${this.register}>
+            Guardar
+          </button>
+          <button class="change" id="button" type="button" @click=${this.viewClients}>
+            Ver Clientes
+          </button>
+        </div>
+        <!-- <button type="submit" >Registrar</button> -->
       </form>
-      
     `;
+  }
+
+  _renderClients(){
+    return html`
+    <div class="clients">
+      <h2>Lista de Clientes</h2>
+      <ul class="clients-list">
+          ${this.clients.map((client) => html`
+            <li>
+              <span><b>${client['nombre'].value}</b></span>
+              <span>${this._getYears(client['bornDate'].value)} años</span>
+              <button class="remove" @click=${() => this.removeClient(client['id'])}>
+                🗑️
+              </button>
+            </li>
+          `)}
+      </ul>
+      
+      <div class="card-client">
+
+      </div>
+      <div class="actions">
+        <button class="change" id="button" type="button" @click=${this.viewClients}>
+          Regresar
+        </button>
+      </div>
+    </div>
+    `
   }
 }

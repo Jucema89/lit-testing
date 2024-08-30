@@ -3,7 +3,7 @@ import { css } from "lit";
 export const styles = css`
 :host {
       input {
-        width: 100%;
+        width: 10%;
         padding: 10px;
         margin: 5px 0;
         border-radius: 4px;
@@ -27,8 +27,12 @@ export const styles = css`
 
       .control {
         display: flex;
-        flex-direction: column;
-        justify-content: space-between;
+        flex-direction: row;
+        justify-content: flex-start;
+        flex-wrap: nowrap;
+        align-items: center;
+        align-content: center;
+        margin: 10px 0;
 
         .label {
           color: #242424;
@@ -40,16 +44,15 @@ export const styles = css`
         }
 
         .message {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
+          display: flex;
+          flex-direction: row;
+          justify-content: space-between;
 
-            .message-error {
-                color: red;
-                font-size: 12px;
-                font-weight: 400;
-            }
-          
+          .message-error {
+              color: red;
+              font-size: 12px;
+              font-weight: 400;
+          }
         }
 
       }

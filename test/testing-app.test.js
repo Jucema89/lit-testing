@@ -4,12 +4,12 @@ import { fixture, expect } from '@open-wc/testing';
 import '../testing-app.js';
 
 describe('TestingApp', () => {
-  it('has a default header "Hey there" and counter 5', async () => {
-    const el = await fixture(html`<testing-app></testing-app>`);
+  // it('has a default header "Hey there" and counter 5', async () => {
+  //   const el = await fixture(html`<testing-app></testing-app>`);
 
-    expect(el.header).to.equal('Hey there');
-    //expect(el.counter).to.equal(5);
-  });
+  //   expect(el.header).to.equal('Hey there');
+  //   //expect(el.counter).to.equal(5);
+  // });
 
   // it('increases the counter on button click', async () => {
   //   const el = await fixture(html`<testing-app></testing-app>`);
