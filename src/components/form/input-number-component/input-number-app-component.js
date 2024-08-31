@@ -1,7 +1,7 @@
 import { html, LitElement } from 'lit';
-import { styles } from './input-text-app-styles';
+import { styles } from './input-number-app-styles';
 
-export class InputTextAppComponent extends LitElement {
+export class InputNumberAppComponent extends LitElement {
   static styles = [ styles ]
 
   static properties = {
@@ -12,6 +12,7 @@ export class InputTextAppComponent extends LitElement {
     disabled: { type: Boolean },
     value: { type: String },
     validation: { type: Object },
+    clear: { type: Boolean },
     _dirty: { type: Boolean },
     _errorMessage: { type: String },
     _runValidate: { type: Boolean }
@@ -34,6 +35,7 @@ export class InputTextAppComponent extends LitElement {
     this._dirty = false;
     this._runValidate = false;
     this._errorMessage = ''
+    this.clear = false;
   }
 
   _timerAwait(time){
@@ -42,15 +44,26 @@ export class InputTextAppComponent extends LitElement {
         resolve();
       }, time)
     })
+  }
 
+  updated(changedProperties) {
+    if (changedProperties.has('clear')) {
+      this._handleClear();
+    }
+  }
+
+  _handleClear() {
+    if (this.clear) {
+      this.value = '';
+      this._dirty = false;
+      this._runValidate = false;
+      this._errorMessage = '';
+    }
   }
 
   async _handleValue(e){
     const name = `on-input-${this.id}`
     this.value = e.target.value;
-    let timer = 800;
-
-    await this._timerAwait(timer)
     this._dirty = true;
       this.dispatchEvent(new CustomEvent(name, {
         detail: {
@@ -73,6 +86,12 @@ export class InputTextAppComponent extends LitElement {
       this._errorMessage = 'El campo es requerido';
       return false;
     }
+
+    if(this._runValidate && !this.value.match(/^[0-9]+$/)){
+      this._errorMessage = 'El campo solo puede contener números';
+      return false;
+    }
+
     if(this._runValidate && this.validation.minLength && this.value.length < this.validation.minLength){
       this._errorMessage = `El campo debe tener al menos ${this.validation.minLength} caracteres`;
       return false;
@@ -81,6 +100,7 @@ export class InputTextAppComponent extends LitElement {
       this._errorMessage = `El campo debe tener menos de ${this.validation.maxLength} caracteres`;
       return false;
     }
+
     if(this._runValidate && this.validation.pattern && !this.value.match(this.validation.pattern)){
       this._errorMessage = 'El campo no cumple con el formato requerido';
       return false;
@@ -95,12 +115,10 @@ export class InputTextAppComponent extends LitElement {
       <label class=${this._isValid ? 'label' : 'label error'}>
         ${this.label} ${this.validation.required ? '*' : ''}
       </label>
-
-
       <input 
         class=${this._isValid ? 'valid' : 'invalid'}
         name=${this.name} 
-        type="text"
+        type="number"
         ?disabled=${this.disabled} 
         @input=${this._handleValue}
         @blur=${() => this._runValidate = true}
@@ -108,7 +126,6 @@ export class InputTextAppComponent extends LitElement {
         .pattern=${this.validation.pattern}
         .required=${this.validation.required}
         autocomplete="off">
-
         ${!this._isValid ? this._renderErrorMessages() : ''}
     </div>
     `;
@@ -123,4 +140,4 @@ export class InputTextAppComponent extends LitElement {
   }
 }
 
-customElements.define('input-text-app', InputTextAppComponent);
+customElements.define('input-number', InputNumberAppComponent);

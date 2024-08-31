@@ -11,9 +11,10 @@ export class InputCheckboxAppComponent extends LitElement {
     name: { type: String },
     disabled: { type: Boolean },
     checked: { type: Boolean },
+    clear: { type: Boolean },
     validation: { type: Object },
-    dirty: { type: Boolean },
-    errorMessage: { type: String }
+    _dirty: { type: Boolean },
+    _errorMessage: { type: String }
   };
 
   constructor() {
@@ -24,16 +25,31 @@ export class InputCheckboxAppComponent extends LitElement {
     this.name = '';
     this.disabled = false;
     this.checked = false;
+    this.clear = false;
     this.validation = {
       required: false,
     },
-    this.dirty = false;
+    this._dirty = false;
     this.errorMessage = ''
   }
 
-   _handleValue(e){
+  updated(changedProperties) {
+    if (changedProperties.has('clear')) {
+      this._handleClear();
+    }
+  }
+
+  _handleClear(){
+    if (this.clear) {
+      this.checked = false;
+      this._dirty = false;
+      this._errorMessage = '';
+    }
+  }
+
+  _handleValue(){
     this.checked = !this.checked;
-    this.dirty = true;
+    this._dirty = true;
     const name = `on-checked-${this.id}`
     this.dispatchEvent(new CustomEvent(name, {
       detail: {
@@ -48,11 +64,11 @@ export class InputCheckboxAppComponent extends LitElement {
 
   get _isValid(){
 
-    if(!this.dirty){
+    if(!this._dirty){
       return true
     }
 
-    if(this.validation.required && this.value === ''){
+    if(this.validation.required && !this.checked){
       this.errorMessage = 'El campo es requerido';
       return false;
     }
@@ -65,7 +81,7 @@ export class InputCheckboxAppComponent extends LitElement {
     <div class="control">
       <label class=${this._isValid ? 'label' : 'label error'}>
         ${this.label} ${this.validation.required ? '*' : ''}
-        </label>
+
         <input 
         class=${this._isValid ? 'valid' : 'invalid'}
         name=${this.name} 
@@ -75,6 +91,8 @@ export class InputCheckboxAppComponent extends LitElement {
         .checked=${this.checked}
         .required=${this.validation.required}
         autocomplete="off">
+
+      </label>
         ${!this._isValid ? this._renderErrorMessages() : ''}
     </div>
     `;
@@ -89,4 +107,4 @@ export class InputCheckboxAppComponent extends LitElement {
   }
 }
 
-customElements.define('input-checkbox-app', InputCheckboxAppComponent);
+customElements.define('input-checkbox', InputCheckboxAppComponent);

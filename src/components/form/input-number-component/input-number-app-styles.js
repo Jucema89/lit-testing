@@ -3,11 +3,17 @@ import { css } from "lit";
 export const styles = css`
 :host {
       input {
-        width: 10%;
+        width: 100%;
         padding: 10px;
         margin: 5px 0;
         border-radius: 4px;
         box-sizing: border-box;
+      }
+
+      input[type="number"]::-webkit-inner-spin-button,
+      input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
       }
 
       .disabled {
@@ -27,12 +33,8 @@ export const styles = css`
 
       .control {
         display: flex;
-        flex-direction: row;
-        justify-content: flex-start;
-        flex-wrap: nowrap;
-        align-items: center;
-        align-content: center;
-        margin: 10px 0;
+        flex-direction: column;
+        justify-content: space-between;
 
         .label {
           color: #242424;

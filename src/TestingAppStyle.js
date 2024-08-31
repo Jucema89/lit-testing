@@ -2,10 +2,6 @@ import { css } from "lit";
 
 export const Styles = css`
 :host {
-  /* display: flex;
-  flex-direction: column;
-  flex-wrap: nowrap;
-  align-items: center; */
 
   form {
     display: flex;
@@ -18,6 +14,7 @@ export const Styles = css`
     flex-direction: column;
     flex-wrap: nowrap;
     justify-content: center;
+    gap: 10px;
   }
 
   form.rotate {
@@ -31,7 +28,7 @@ export const Styles = css`
     font-size: 24px;
     font-weight: 600;
     margin: 0;
-    padding: 12px 0
+    padding: 5px 0
   }
 
   button {
@@ -86,6 +83,7 @@ export const Styles = css`
     flex-direction: column;
     flex-wrap: nowrap;
     align-items: center;
+    margin: 50px 0;
   }
 
   .card.rotate {
@@ -98,6 +96,15 @@ export const Styles = css`
   .card-client{
     display: flex;
     flex-direction: column;
+  }
+
+  .card form .duo {
+    display: flex;
+    flex-direction: row;
+    align-content: center;
+    align-items: center;
+    flex-wrap: nowrap;
+    justify-content: space-between;
   }
 
   .actions {
