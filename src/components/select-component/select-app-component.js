@@ -11,10 +11,11 @@ export class SelectAppComponent extends LitElement {
     placeholder: { type: String },
     name: { type: String },
     disabled: { type: Boolean },
+    clear: { type: Boolean },
     value: { type: String },
     validation: { type: Object },
-    dirty: { type: Boolean },
-    errorMessage: { type: String }
+    _dirty: { type: Boolean },
+    _errorMessage: { type: String }
   };
 
   constructor() {
@@ -24,16 +25,31 @@ export class SelectAppComponent extends LitElement {
     this.placeholder = '';
     this.name = '';
     this.disabled = false;
+    this.clear = false;
     this.value = '';
     this.validation = {
       required: false
     },
-    this.dirty = false;
-    this.errorMessage = ''
+    this._dirty = false;
+    this._errorMessage = ''
+  }
+
+  updated(changedProperties) {
+    if (changedProperties.has('clear')) {
+      this._handleClear();
+    }
+  }
+
+  _handleClear() {
+    if (this.clear) {
+      this.value = '';
+      this._dirty = false;
+      this._errorMessage = '';
+    }
   }
 
    _handleValue(e){
-    this.dirty = true;
+    this._dirty = true;
     const name = `on-select-${this.id}`
     this.value = e.target.value;
     this.dispatchEvent(new CustomEvent(name, {
@@ -49,11 +65,11 @@ export class SelectAppComponent extends LitElement {
 
   get _isValid(){
 
-    if(!this.dirty){
+    if(!this._dirty){
       return true
     }
     if(this.validation.required && this.value === ''){
-      this.errorMessage = 'El campo es requerido';
+      this._errorMessage = 'El campo es requerido';
       return false;
     }
     return true;
@@ -69,6 +85,7 @@ export class SelectAppComponent extends LitElement {
         class=${this._isValid ? 'valid' : 'invalid'}
         name=${this.name} 
         ?disabled=${this.disabled} 
+        @blur=${() => this._dirty = true}
         @change=${this._handleValue} 
         .value=${this.value}
         .required=${this.validation.required}
@@ -86,7 +103,7 @@ export class SelectAppComponent extends LitElement {
   _renderErrorMessages(){
     return html`
       <div class="message">
-        <span class="message-error">⛔ ${this.errorMessage}</span>
+        <span class="message-error">⛔ ${this._errorMessage}</span>
       </div>
     `;
   }

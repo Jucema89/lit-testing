@@ -3,6 +3,7 @@ import'./components/input-text-component/input-text-app-component.js';
 import'./components/input-checkbox-component/input-checkbox-app-component.js';
 import './components/select-component/select-app-component.js';
 import './components/input-date-component/input-date-app-component.js';
+import './components/input-number-component/input-number-app-component.js';
 import { Styles } from './TestingAppStyle.js';
 export class TestingApp extends LitElement {
   static styles = [
@@ -14,7 +15,8 @@ export class TestingApp extends LitElement {
     showClients: { type: Boolean },
     formData: { type: Object },
     buttonSendDisabled: { type: Boolean },
-    clients: { type: Array }
+    clients: { type: Array },
+    clearForm: { type: Boolean }
   };
 
   constructor() {
@@ -22,6 +24,7 @@ export class TestingApp extends LitElement {
     this.showClients = false;
     this.clients = [];
     this.buttonSendDisabled = true;
+    this.clearForm = false;
     this.optionsCivilState = [
       { value: 'soltero', label: 'Soltero' },
       { value: 'casado', label: 'Casado' },
@@ -102,6 +105,12 @@ export class TestingApp extends LitElement {
         valid: false
       }
     }
+
+    this.clearForm = true;
+    this.buttonSendDisabled = true;
+    setTimeout(() => {
+      this.clearForm = false;
+    }, 1000);
   }
 
   viewClients(){
@@ -109,11 +118,14 @@ export class TestingApp extends LitElement {
   }
 
   _handleInput(e, nameInput){
+    //console.log(nameInput,' || ', e.detail)
     if(e.detail.valid){
       this.formData[nameInput].value = e.detail.value;
       this.formData[nameInput].valid = e.detail.valid;
 
       this.buttonSendDisabled = Object.values(this.formData).some((item) => !item || !item.valid)
+    } else {
+      this.buttonSendDisabled = true;
     }
   }
 
@@ -146,55 +158,59 @@ export class TestingApp extends LitElement {
           Registro de Clientes
         </h2>
         <div>
-          <input-text-app
+          <input-number
             id="codigo"
             name="codigo"
             label="Codigo"
             .disabled=${false}
+            .clear=${this.clearForm}
             .validation=${{required: true, minLength: 3, maxLength: 30}}
             @on-input-codigo=${(e) => this._handleInput(e, 'codigo')}>
-          </input-text-app>
+          </input-number>
         </div>
         <div>
-          <input-text-app
+          <input-text
             id="nombre" 
             name="nombre"
             label="Nombre"
             .disabled=${false}
+            .clear=${this.clearForm}
             .validation=${{required: true, minLength: 3, maxLength: 30}}
             @on-input-nombre=${(e) => this._handleInput(e, 'nombre')}>
-          </input-text-app>
-
+          </input-text>
         </div>
         <div>
-          <input-text-app
+          <input-text
             id="apellidos" 
             name="apellidos"
             label="Apellidos"
             .disabled=${false}
+            .clear=${this.clearForm}
             .validation=${{required: true, minLength: 3, maxLength: 30}}
             @on-input-apellidos=${(e) => this._handleInput(e, 'apellidos')}>
-          </input-text-app>
+          </input-text>
         </div>
         <div>
-          <input-text-app
+          <input-text
             id="correo" 
             name="correo"
             label="Correo"
             .disabled=${false}
+            .clear=${this.clearForm}
             .validation=${{
               required: true, 
               minLength: 3, 
               pattern: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/}
             }
             @on-input-correo=${(e) => this._handleInput(e, 'correo')}>
-          </input-text-app>
+          </input-text>
         </div>
         <div>
           <input-date
             id="bornDate"
             name="bornDate"
             label="Fecha de nacimiento"
+            .clear=${this.clearForm}
             .validation=${{
               required: true,
               onlyAfterToday: false
@@ -210,17 +226,20 @@ export class TestingApp extends LitElement {
             .validation=${{required: true}}
             placeholder="Seleccione un estado civil"
             .disabled=${false}
+            .clear=${this.clearForm}
            .options=${this.optionsCivilState}
            @on-select-estadocivil=${(e) => this._handleInput(e, 'estadocivil')}>
           </select-input>
         </div>
         <div>
-          <input-checkbox-app
+          <input-checkbox
             id="acepto"
             name="acepto"
             label="Acepto los terminos y condiciones"
+            .validation=${{ required: true }}
+            .clear=${this.clearForm}
             @on-checked-acepto=${(e) => this._handleInput(e, 'acepto')}>
-          </input-checkbox-app>
+          </input-checkbox>
         </div>
         <div class="actions">
           <button class="send" id="button" type="button" 
@@ -228,11 +247,14 @@ export class TestingApp extends LitElement {
             @click=${this.register}>
             Guardar
           </button>
-          <button class="change" id="button" type="button" @click=${this.viewClients}>
+          <button 
+            class="change" 
+            type="button" 
+            .disabled=${!this.clients.length} 
+            @click=${this.viewClients}>
             Ver Clientes
           </button>
         </div>
-        <!-- <button type="submit" >Registrar</button> -->
       </form>
     `;
   }

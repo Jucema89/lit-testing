@@ -10,10 +10,11 @@ export class InputDateAppComponent extends LitElement {
     placeholder: { type: String },
     name: { type: String },
     disabled: { type: Boolean },
+    clear: { type: Boolean },
     value: { type: String },
     validation: { type: Object },
-    dirty: { type: Boolean },
-    errorMessage: { type: String }
+    _dirty: { type: Boolean },
+    _errorMessage: { type: String }
   };
 
   constructor() {
@@ -23,6 +24,7 @@ export class InputDateAppComponent extends LitElement {
     this.placeholder = '';
     this.name = '';
     this.disabled = false;
+    this.clear = false;
     this.value = '';
     this.validation = {
       required: false,
@@ -30,12 +32,26 @@ export class InputDateAppComponent extends LitElement {
       maxDate: '',
       onlyAfterToday: false
     },
-    this.dirty = false;
-    this.errorMessage = ''
+    this._dirty = false;
+    this._errorMessage = ''
   }
 
-   _handleValue(e){
-    this.dirty = true;
+  updated(changedProperties) {
+    if (changedProperties.has('clear')) {
+      this._handleClear();
+    }
+  }
+
+  _handleClear() {
+    if (this.clear) {
+      this.value = '';
+      this._dirty = false;
+      this._errorMessage = '';
+    }
+  }
+
+  _handleValue(e){
+    this._dirty = true;
     const name = `on-date-${this.id}`
     this.value = e.target.value;
     this.dispatchEvent(new CustomEvent(name, {
@@ -51,24 +67,24 @@ export class InputDateAppComponent extends LitElement {
 
   get _isValid(){
 
-    if(!this.dirty){
+    if(!this._dirty){
       return true
     }
     if(this.validation.required && this.value === ''){
-      this.errorMessage = 'El campo es requerido';
+      this._errorMessage = 'El campo es requerido';
       return false;
     }
     if(this.validation.minDate && this.value < this.validation.minDate){
-      this.errorMessage = `La fecha debe ser mayor a ${this.validation.minDate}`;
+      this._errorMessage = `La fecha debe ser mayor a ${this.validation.minDate}`;
       return false;
     }
     if(this.validation.maxDate && this.value > this.validation.maxDate){
-      this.errorMessage = `La fecha debe ser menor a ${this.validation.maxDate}`;
+      this._errorMessage = `La fecha debe ser menor a ${this.validation.maxDate}`;
       return false
     }
 
     if(this.validation.onlyAfterToday && this.value < new Date().toISOString().split('T')[0]){
-      this.errorMessage = `La fecha debe ser mayor a hoy`;
+      this._errorMessage = `La fecha debe ser mayor a hoy`;
       return false
     }
 
@@ -86,7 +102,8 @@ export class InputDateAppComponent extends LitElement {
         name=${this.name} 
         type="date"
         ?disabled=${this.disabled} 
-        @change=${this._handleValue} 
+        @change=${this._handleValue}
+        @blur=${() => this._dirty = true}
         .value=${this.value}
         .min=${
           this.validation.onlyAfterToday ? 
@@ -104,7 +121,7 @@ export class InputDateAppComponent extends LitElement {
   _renderErrorMessages(){
     return html`
       <div class="message">
-        <span class="message-error">⛔ ${this.errorMessage}</span>
+        <span class="message-error">⛔ ${this._errorMessage}</span>
       </div>
     `;
   }
