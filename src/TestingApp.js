@@ -1,10 +1,7 @@
 import { html, css, LitElement } from 'lit';
-import'./components/input-text-component/input-text-app-component.js';
-import'./components/input-checkbox-component/input-checkbox-app-component.js';
-import './components/select-component/select-app-component.js';
-import './components/input-date-component/input-date-app-component.js';
-import './components/input-number-component/input-number-app-component.js';
 import { Styles } from './TestingAppStyle.js';
+import './components/form'
+import './components/client-list/client-list-component.js'
 export class TestingApp extends LitElement {
   static styles = [
     Styles
@@ -15,6 +12,7 @@ export class TestingApp extends LitElement {
     showClients: { type: Boolean },
     formData: { type: Object },
     buttonSendDisabled: { type: Boolean },
+    optionsClientType: { type: Array },
     clients: { type: Array },
     clearForm: { type: Boolean }
   };
@@ -31,6 +29,10 @@ export class TestingApp extends LitElement {
       { value: 'divorciado', label: 'Divorciado' },
       { value: 'viudo', label: 'Viudo' }
     ];
+    this.optionsClientType = [
+      {label: 'Nacional', value: 'nal'}, 
+      { label: 'Internacional', value: 'int'}
+    ]
 
     this.formData = {
       codigo: {
@@ -42,6 +44,10 @@ export class TestingApp extends LitElement {
         valid: false
       },
       apellidos:{
+        value: '',
+        valid: false
+      },
+      typeClient:{
         value: '',
         valid: false
       },
@@ -88,6 +94,10 @@ export class TestingApp extends LitElement {
         value: '',
         valid: false
       },
+      typeClient:{
+        value: '',
+        valid: false
+      },
       correo:{
         value: '',
         valid: false
@@ -118,7 +128,6 @@ export class TestingApp extends LitElement {
   }
 
   _handleInput(e, nameInput){
-    //console.log(nameInput,' || ', e.detail)
     if(e.detail.valid){
       this.formData[nameInput].value = e.detail.value;
       this.formData[nameInput].valid = e.detail.valid;
@@ -129,18 +138,8 @@ export class TestingApp extends LitElement {
     }
   }
 
-  _getYears(date){
-    const today = new Date();
-    const bornDate = new Date(date);
-    return today.getFullYear() - bornDate.getFullYear();
-  }
-
-  removeClient(id){
-    this.clients = [...this.clients.filter((client) => client.id !== id)];
-  }
-
-  _submitData(e){
-    console.log('_submitData = ', e)
+  _handleRemoveClient(event){
+    this.clients = [...this.clients.filter((client) => client.id !== event.detail)];
   }
 
   render(){
@@ -205,31 +204,45 @@ export class TestingApp extends LitElement {
             @on-input-correo=${(e) => this._handleInput(e, 'correo')}>
           </input-text>
         </div>
-        <div>
-          <input-date
-            id="bornDate"
-            name="bornDate"
-            label="Fecha de nacimiento"
-            .clear=${this.clearForm}
-            .validation=${{
-              required: true,
-              onlyAfterToday: false
-            }}
-            @on-date-bornDate=${(e) => this._handleInput(e, 'bornDate')}>
-          </input-date>
+        <div class="duo">
+          <div>
+            <input-date
+              id="bornDate"
+              name="bornDate"
+              label="Fecha de nacimiento"
+              .clear=${this.clearForm}
+              .validation=${{
+                required: true,
+                onlyAfterToday: false
+              }}
+              @on-date-bornDate=${(e) => this._handleInput(e, 'bornDate')}>
+            </input-date>
+          </div>
+          <div>
+            <select-input
+              id="estadocivil"
+              name="estadocivil"
+              label="Estado Civil"
+              .validation=${{required: true}}
+              placeholder="Seleccione un estado civil"
+              .disabled=${false}
+              .clear=${this.clearForm}
+            .options=${this.optionsCivilState}
+            @on-select-estadocivil=${(e) => this._handleInput(e, 'estadocivil')}>
+            </select-input>
+          </div>
         </div>
         <div>
-          <select-input
-            id="estadocivil"
-            name="estadocivil"
-            label="Estado Civil"
+          <input-radio
+            id="typeClient"
+            name="typeClient"
+            label="Tipo de Cliente"
             .validation=${{required: true}}
-            placeholder="Seleccione un estado civil"
             .disabled=${false}
+            .options=${this.optionsClientType}    
             .clear=${this.clearForm}
-           .options=${this.optionsCivilState}
-           @on-select-estadocivil=${(e) => this._handleInput(e, 'estadocivil')}>
-          </select-input>
+            @on-radio-typeClient=${(e) => this._handleInput(e, 'typeClient')}>
+          </input-radio>
         </div>
         <div>
           <input-checkbox
@@ -261,29 +274,12 @@ export class TestingApp extends LitElement {
 
   _renderClients(){
     return html`
-    <div class="clients">
-      <h2>Lista de Clientes</h2>
-      <ul class="clients-list">
-          ${this.clients.map((client) => html`
-            <li>
-              <span><b>${client['nombre'].value}</b></span>
-              <span>${this._getYears(client['bornDate'].value)} años</span>
-              <button class="remove" @click=${() => this.removeClient(client['id'])}>
-                🗑️
-              </button>
-            </li>
-          `)}
-      </ul>
-      
-      <div class="card-client">
-
-      </div>
-      <div class="actions">
-        <button class="change" id="button" type="button" @click=${this.viewClients}>
-          Regresar
-        </button>
-      </div>
-    </div>
+    <client-list
+      .clients=${this.clients}
+      .showClients=${this.showClients}
+      @on-remove-client=${this._handleRemoveClient}
+      @on-back-form=${this.viewClients}>
+    </client-list>
     `
   }
 }

@@ -64,9 +64,6 @@ export class InputNumberAppComponent extends LitElement {
   async _handleValue(e){
     const name = `on-input-${this.id}`
     this.value = e.target.value;
-    // let timer = 800;
-
-    // await this._timerAwait(timer)
     this._dirty = true;
       this.dispatchEvent(new CustomEvent(name, {
         detail: {
