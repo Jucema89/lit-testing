@@ -1,8 +1,8 @@
 import { html } from 'lit';
 import { fixture, expect } from '@open-wc/testing';
-import '../../src/components/form/input-text-component/input-text-app-component';
+import '../../src/components/form/input-number-component/input-number-app-component';
 
-describe('input-text Incializa comportamientos básicos', () => {
+describe('input-number Incializa comportamientos básicos', () => {
   let component;
   let inputHtml;
 
@@ -13,25 +13,27 @@ describe('input-text Incializa comportamientos básicos', () => {
     }
 
     component = await fixture(html`
-      <input-text
-        id="nombre"
-        name="nombre"
-        label="Nombre"
+      <input-number
+        id="codigo"
+        name="codigo"
+        label="Codigo"
+        placeholder="01234"
         .validation=${{ required: true }}
-        @on-input-nombre=${handleInputTest}>
-      </input-text>
+        @on-input-codigo=${handleInputTest}>
+      </input-number>
     `);
     inputHtml = component.shadowRoot.querySelector('input');
   });
 
   it('Estado inicial cargado', async () => {
-    expect(component.id).to.equal('nombre');
-    expect(component.name).to.equal('nombre');
+    expect(component.id).to.equal('codigo');
+    expect(component.name).to.equal('codigo');
     expect(component.disabled).to.be.false;
+    expect(component.placeholder).to.equal('01234');
   });
 
   it('Validación de campo requerido', async () => {
-    inputHtml.value = '';
+    inputHtml.value = 0;
     inputHtml.dispatchEvent(new Event('input'));
     inputHtml.dispatchEvent(new Event('blur'));
     await component.updateComplete;
@@ -40,19 +42,19 @@ describe('input-text Incializa comportamientos básicos', () => {
   });
 })
 
-describe('input-text Sistema de Validaciones Exitosas', () => {
+describe('input-number Sistema de Validaciones Exitosas', () => {
   let component;
   let inputHtml;
 
   beforeEach(async () => {
     component = await fixture(html`
-      <input-text
-        id="nombre"
-        name="nombre"
-        label="Nombre"
+      <input-number
+        id="codigo"
+        name="codigo"
+        label="Codigo"
         .validation=${{ required: true, minLength: 3, maxLength: 10 }}
-        @on-input-nombre=${handleInputTest}>
-      </input-text>
+        @on-input-codigo=${handleInputTest}>
+      </input-number>
     `);
     inputHtml = component.shadowRoot.querySelector('input');
   });
@@ -62,7 +64,7 @@ describe('input-text Sistema de Validaciones Exitosas', () => {
   }
 
   it('Validación exitosa de campo con longitud mínima', async () => {
-    inputHtml.value = '123';
+    inputHtml.value = 123;
     inputHtml.dispatchEvent(new Event('input'));
     inputHtml.dispatchEvent(new Event('blur'));
     await component.updateComplete;
@@ -71,7 +73,7 @@ describe('input-text Sistema de Validaciones Exitosas', () => {
   });
 
   it('Validación exitosa de campo con longitud máxima', async () => {
-    inputHtml.value = '1234567890';
+    inputHtml.value = 1234567890;
     inputHtml.dispatchEvent(new Event('input'));
     inputHtml.dispatchEvent(new Event('blur'));
 
@@ -82,19 +84,19 @@ describe('input-text Sistema de Validaciones Exitosas', () => {
   });
 })
 
-describe('input-text Sistema de Validaciones con Error', () => {
+describe('input-number Sistema de Validaciones con Error', () => {
   let component;
   let inputHtml;
 
   beforeEach(async () => {
     component = await fixture(html`
-      <input-text
-        id="nombre"
-        name="nombre"
-        label="Nombre"
+      <input-number
+        id="codigo"
+        name="codigo"
+        label="Codigo"
         .validation=${{ required: true, minLength: 3, maxLength: 10 }}
-        @on-input-nombre=${handleInputTest}>
-      </input-text>
+        @on-input-codigo=${handleInputTest}>
+      </input-number>
     `);
     inputHtml = component.shadowRoot.querySelector('input');
   });
@@ -104,53 +106,61 @@ describe('input-text Sistema de Validaciones con Error', () => {
   }
 
   it('Error en Validación  de campo con longitud mínima', async () => {
-    inputHtml.value = '12';
+    inputHtml.value = 12;
     inputHtml.dispatchEvent(new Event('input'));
     inputHtml.dispatchEvent(new Event('blur'));
 
     await component.updateComplete;
     const messageErrorHtml = component.shadowRoot.querySelector('.message-error');
-    expect(messageErrorHtml.textContent).to.equal('⛔ El campo debe tener al menos 3 caracteres');
+    expect(messageErrorHtml.textContent).to.equal('⛔ El campo debe tener al menos 3 numeros');
+  });
+
+  it('Error en Validación de campo por ingresar letras', async () => {
+    inputHtml.value = '12ab3';
+    inputHtml.dispatchEvent(new Event('input'));
+    inputHtml.dispatchEvent(new Event('blur'));
+
+    await component.updateComplete;
+    const messageErrorHtml = component.shadowRoot.querySelector('.message-error');
+    expect(messageErrorHtml.textContent).to.equal('⛔ El campo solo puede contener números');
   });
 
   it('Validación exitosa de campo con longitud máxima', async () => {
-    inputHtml.value = '12345678901';
+    inputHtml.value = 12345678901;
     inputHtml.dispatchEvent(new Event('input'));
     inputHtml.dispatchEvent(new Event('blur'));
 
     await component.updateComplete;
 
     const messageErrorHtml = component.shadowRoot.querySelector('.message-error');
-    expect(messageErrorHtml.textContent).to.equal('⛔ El campo debe tener menos de 10 caracteres');
+    expect(messageErrorHtml.textContent).to.equal('⛔ El campo debe tener menos de 10 numeros');
   });
 })
 
-describe('input-text Sistema de Validaciones con Expresiones Regulares', () => {
+describe('input-number Sistema de Validaciones con Expresiones Regulares', () => {
   let component;
   let inputHtml;
-
-  //expresion regular que valide que el texto tenga por lo menos 1 letra minuscula, 1 letra mayuscula, 1 numero del 1 al 9, 1 caracter especial y una longitud minima de 8 caracteres
-  const expRegularPass = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*\W)(?=.*\d)[a-zA-Z\W\d]{8,}$/;
-  //Expresion regular que valide un correo electronico
-  const expRegularEmail = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+ 
+  //expresion regular que valida que el numero sea mayor a 2000
+  const expRegNumbersTo2000 = /^[2-9]\d{3,}$/;
 
   function handleInputTest(event) {
     return event.detail;
   }
 
-  it('Validación de Password exitoso mediante expresion regular', async () => {
+  it('Validación de Numeros Mayores a 2000 exitoso mediante expresion regular', async () => {
     component = await fixture(html`
-      <input-text
-        id="nombre"
-        name="nombre"
-        label="Nombre"
-        .validation=${{ required: true, pattern: expRegularPass }}
-        @on-input-nombre=${handleInputTest}>
-      </input-text>
+      <input-number
+        id="codigo"
+        name="codigo"
+        label="Codigo"
+        .validation=${{ required: true, pattern: expRegNumbersTo2000 }}
+        @on-input-codigo=${handleInputTest}>
+      </input-number>
     `);
     inputHtml = component.shadowRoot.querySelector('input');
 
-    inputHtml.value = 'Aa1234f?!';
+    inputHtml.value = 2100;
     inputHtml.dispatchEvent(new Event('input'));
     inputHtml.dispatchEvent(new Event('blur'));
 
@@ -160,52 +170,30 @@ describe('input-text Sistema de Validaciones con Expresiones Regulares', () => {
     expect(messageErrorHtml).to.be.null;
   });
 
-  it('Error en Password mediante expresion regular', async () => {
+  it('Error en Numeros Mayores a 2000 mediante expresion regular', async () => {
     component = await fixture(html`
-      <input-text
-        id="nombre"
-        name="nombre"
-        label="Nombre"
-        .validation=${{ required: true, pattern: expRegularPass }}
-        @on-input-nombre=${handleInputTest}>
-      </input-text>
+      <input-number
+        id="codigo"
+        name="codigo"
+        label="Codigo"
+        .validation=${{ required: true, pattern: expRegNumbersTo2000 }}
+        @on-input-codigo=${handleInputTest}>
+      </input-number>
     `);
     inputHtml = component.shadowRoot.querySelector('input');
 
-    inputHtml.value = '12345';
+    inputHtml.value = 1900;
     inputHtml.dispatchEvent(new Event('input'));
     inputHtml.dispatchEvent(new Event('blur'));
 
     await component.updateComplete;
 
     const messageErrorHtml = component.shadowRoot.querySelector('.message-error');
-    expect(messageErrorHtml.textContent).to.equal('⛔ El campo no cumple con el formato requerido')
-  });
-
-  it('Error en Email mediante expresion regular', async () => {
-    component = await fixture(html`
-      <input-text
-        id="nombre"
-        name="nombre"
-        label="Nombre"
-        .validation=${{ required: true, pattern: expRegularEmail }}
-        @on-input-nombre=${handleInputTest}>
-      </input-text>
-    `);
-    inputHtml = component.shadowRoot.querySelector('input');
-
-    inputHtml.value = 'mailArrobagmail.com';
-    inputHtml.dispatchEvent(new Event('input'));
-    inputHtml.dispatchEvent(new Event('blur'));
-      
-    await component.updateComplete;
-
-    const messageErrorHtml = component.shadowRoot.querySelector('.message-error');
-    expect(messageErrorHtml.textContent).to.equal('⛔ El campo no cumple con el formato requerido');
+    expect(messageErrorHtml.textContent).to.equal('⛔ El numero no cumple con el formato requerido')
   });
 })
 
-describe('input-text Envia los Eventos al Componente Padre', () => {
+describe('input-number Envia los Eventos al Componente Padre', () => {
   let component;
   let inputHtml;
 
@@ -216,24 +204,24 @@ describe('input-text Envia los Eventos al Componente Padre', () => {
     }
 
     component = await fixture(html`
-      <input-text
-        id="nombre"
-        name="nombre"
-        label="Nombre"
+      <input-number
+        id="codigo"
+        name="codigo"
+        label="Codigo"
         .validation=${{ required: true }}
-        @on-input-nombre=${handleInputTest}>
-      </input-text>
+        @on-input-codigo=${handleInputTest}>
+      </input-number>
     `);
     inputHtml = component.shadowRoot.querySelector('input');
   });
 
   it('El Evento Custom retorna el Valor ingresado al input', async () => {
-    const valueToSet = 'Aa1234f?!'
+    const valueToSet = 123456
 
-    component.addEventListener('on-input-nombre', (e) => {
+    component.addEventListener('on-input-codigo', (e) => {
       expect(e.detail.value).to.equal(valueToSet);
       expect(e.detail.valid).to.equal(true);
-    });
+    })
 
     inputHtml.value = valueToSet;
     inputHtml.dispatchEvent(new Event('input'));
@@ -242,18 +230,18 @@ describe('input-text Envia los Eventos al Componente Padre', () => {
 
   it('El Evento Custom retorna valid=false en caso de error', async () => {
 
-    component.addEventListener('on-input-nombre', (e) => {
-      expect(e.detail.value).to.equal('');
+    component.addEventListener('on-input-codigo', (e) => {
+      expect(e.detail.value).to.equal(0);
       expect(e.detail.valid).to.equal(false);
     });
 
-    inputHtml.value = ' ';
+    inputHtml.value = 0;
     inputHtml.dispatchEvent(new Event('input'));
     inputHtml.dispatchEvent(new Event('blur'));
   })
 })
 
-describe('input-text Recibe el evento clear del Componente Padre y reinicia su estado', () => {
+describe('input-number Recibe el evento clear del Componente Padre y reinicia su estado', () => {
   let component;
   let inputHtml;
 
@@ -263,34 +251,34 @@ describe('input-text Recibe el evento clear del Componente Padre y reinicia su e
     }
 
     component = await fixture(html`
-      <input-text
-        id="nombre"
-        name="nombre"
-        label="Nombre"
+      <input-number
+        id="codigo"
+        name="codigo"
+        label="Codigo"
         .validation=${{ required: true }}
         .clear=${false}
-        @on-input-nombre=${handleInputTest}>
-      </input-text>
+        @on-input-codigo=${handleInputTest}>
+      </input-number>
     `);
     inputHtml = component.shadowRoot.querySelector('input');
   });
 
   it('El Evento del padre llega a Input-Text', async () => {
-    const valueToSet = 'Jose Pepe'
+    const valueToSet = 2344
 
-    component.addEventListener('on-input-nombre', async (e) => {
+    component.addEventListener('on-input-codigo', async (e) => {
       //Padre recibe el valid y value correctos
       expect(e.detail.value).to.equal(valueToSet);
       expect(e.detail.valid).to.equal(true);
-      //Se valida estado actual del input-text
-      expect(component.value).to.equal(valueToSet);
-      expect(component.id).to.equal('nombre');
+      //Se valida estado actual del input-number
+      expect(component.value).to.equal(String(valueToSet));
+      expect(component.id).to.equal('codigo');
       //padre ordena el clear
       component.clear = true;
       await component.updateComplete;
       //validamos que el Evento clear llego y que cambio el value a ''
       expect(component.clear).to.be.true;
-      expect(component.value).to.equal('');
+      expect(component.value).to.equal('0');
     });
 
     inputHtml.value = valueToSet;
@@ -303,42 +291,42 @@ describe('Renderizados correctos de Elementos', () => {
 
   it('El label muestra el * al ser requerido', async () => {
     const component = await fixture(html`
-      <input-text
-        id="nombre"
-        name="nombre"
-        label="Nombre"
+      <input-number
+        id="codigo"
+        name="codigo"
+        label="Codigo"
         .validation=${{ required: true }}>
-      </input-text>
+      </input-number>
     `);
     const labelHtml = component.shadowRoot.querySelector('.label');
-    expect(labelHtml.textContent.trim()).to.equal('Nombre *');
+    expect(labelHtml.textContent.trim()).to.equal('Codigo *');
   });
 
   it('El label NO muestra el * de requerido', async () => {
     const component = await fixture(html`
-      <input-text
-        id="nombre"
-        name="nombre"
-        label="Nombre"
+      <input-number
+        id="codigo"
+        name="codigo"
+        label="Codigo"
         .validation=${{ required: false }}>
-      </input-text>
+      </input-number>
     `);
     const labelHtml = component.shadowRoot.querySelector('.label');
-    expect(labelHtml.textContent.trim()).to.equal('Nombre');
+    expect(labelHtml.textContent.trim()).to.equal('Codigo');
   });
 
   it('En caso de Error se renderiza el mensaje', async () => {
     const component = await fixture(html`
-      <input-text
-        id="nombre"
-        name="nombre"
-        label="Nombre"
+      <input-number
+        id="codigo"
+        name="codigo"
+        label="Codigo"
         .validation=${{ required: true }}>
-      </input-text>
+      </input-number>
     `);
     const inputHtml = component.shadowRoot.querySelector('input');
 
-    inputHtml.value = '';
+    inputHtml.value = 0;
     inputHtml.dispatchEvent(new Event('input'));
     inputHtml.dispatchEvent(new Event('blur'));
 
@@ -349,16 +337,16 @@ describe('Renderizados correctos de Elementos', () => {
 
   it('En caso de Error el label es de Color Rojo', async () => {
     const component = await fixture(html`
-      <input-text
-        id="nombre"
-        name="nombre"
-        label="Nombre"
+      <input-number
+        id="codigo"
+        name="codigo"
+        label="Codigo"
         .validation=${{ required: true }}>
-      </input-text>
+      </input-number>
     `);
     const inputHtml = component.shadowRoot.querySelector('input');
   
-    inputHtml.value = '';
+    inputHtml.value = 0;
     inputHtml.dispatchEvent(new Event('input'));
     inputHtml.dispatchEvent(new Event('blur'));
 
@@ -369,17 +357,17 @@ describe('Renderizados correctos de Elementos', () => {
 
   it('En caso de Error el borde del input es de Color Rojo', async () => {
     const component = await fixture(html`
-      <input-text
-        id="nombre"
-        name="nombre"
-        label="Nombre"
+      <input-number
+        id="codigo"
+        name="codigo"
+        label="Codigo"
         .validation=${{ required: true }}>
-      </input-text>
+      </input-number>
     `);
 
     const inputHtml = component.shadowRoot.querySelector('input');
   
-    inputHtml.value = '';
+    inputHtml.value = 0;
     inputHtml.dispatchEvent(new Event('input'));
     inputHtml.dispatchEvent(new Event('blur'));
     
@@ -387,7 +375,4 @@ describe('Renderizados correctos de Elementos', () => {
     const inputWithError = component.shadowRoot.querySelector('input');
     expect(inputWithError.classList['0']).to.equal('invalid');
   });
-
-
-
 })

@@ -25,7 +25,7 @@ export class InputNumberAppComponent extends LitElement {
     this.placeholder = '';
     this.name = '';
     this.disabled = false;
-    this.value = '';
+    this.value = '0';
     this.validation = {
       required: false,
       minLength: 0,
@@ -38,14 +38,6 @@ export class InputNumberAppComponent extends LitElement {
     this.clear = false;
   }
 
-  _timerAwait(time){
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve();
-      }, time)
-    })
-  }
-
   updated(changedProperties) {
     if (changedProperties.has('clear')) {
       this._handleClear();
@@ -54,7 +46,7 @@ export class InputNumberAppComponent extends LitElement {
 
   _handleClear() {
     if (this.clear) {
-      this.value = '';
+      this.value = '0';
       this._dirty = false;
       this._runValidate = false;
       this._errorMessage = '';
@@ -67,8 +59,8 @@ export class InputNumberAppComponent extends LitElement {
     this._dirty = true;
       this.dispatchEvent(new CustomEvent(name, {
         detail: {
-          value: this.value,
-          valid: this._isValid
+          value: Number(this.value),
+          valid: (this.validation.required && this.value === '0') ? false : this._isValid
         }
       }, {
         bubbles: true,
@@ -82,7 +74,7 @@ export class InputNumberAppComponent extends LitElement {
       return true
     }
 
-    if(this._runValidate && this.validation.required && this.value === ''){
+    if(this._runValidate && this.validation.required && this.value === '0'){
       this._errorMessage = 'El campo es requerido';
       return false;
     }
@@ -93,16 +85,16 @@ export class InputNumberAppComponent extends LitElement {
     }
 
     if(this._runValidate && this.validation.minLength && this.value.length < this.validation.minLength){
-      this._errorMessage = `El campo debe tener al menos ${this.validation.minLength} caracteres`;
+      this._errorMessage = `El campo debe tener al menos ${this.validation.minLength} numeros`;
       return false;
     }
     if(this._runValidate && this.validation.maxLength && this.value.length > this.validation.maxLength){
-      this._errorMessage = `El campo debe tener menos de ${this.validation.maxLength} caracteres`;
+      this._errorMessage = `El campo debe tener menos de ${this.validation.maxLength} numeros`;
       return false;
     }
 
     if(this._runValidate && this.validation.pattern && !this.value.match(this.validation.pattern)){
-      this._errorMessage = 'El campo no cumple con el formato requerido';
+      this._errorMessage = 'El numero no cumple con el formato requerido';
       return false;
     }
 
