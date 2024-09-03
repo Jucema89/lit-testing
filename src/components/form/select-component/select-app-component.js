@@ -30,6 +30,7 @@ export class SelectAppComponent extends LitElement {
     this.validation = {
       required: false
     },
+    this.options = [];
     this._dirty = false;
     this._errorMessage = ''
   }

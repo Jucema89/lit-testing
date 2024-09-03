@@ -1,6 +1,6 @@
 import { html } from 'lit';
 import { fixture, expect } from '@open-wc/testing';
-import '../../src/components/form/input-text-component/input-text-app-component';
+import '../../../src/components/form/input-text-component/input-text-app-component';
 
 describe('input-text Incializa comportamientos básicos', () => {
   let component;

@@ -1,24 +1,18 @@
 import { html } from 'lit';
 import { fixture, expect } from '@open-wc/testing';
-import '../../src/components/form/input-checkbox-component/input-checkbox-app-component.js';
+import '../../../src/components/form/input-checkbox-component/input-checkbox-app-component.js';
 
 describe('input-checkbox Incializa comportamientos básicos', () => {
   let component;
   let inputHtml;
 
   beforeEach(async () => {
-
-    function handleInputTest(event) {
-      return event;
-    }
-
     component = await fixture(html`
       <input-checkbox
         id="acepto"
         name="acepto"
         label="Acepto los terminos y condiciones"
-        .validation=${{ required: true }}
-        @on-input-acepto=${handleInputTest}>
+        .validation=${{ required: true }}>
       </input-checkbox>
     `);
     inputHtml = component.shadowRoot.querySelector('input');
@@ -42,16 +36,11 @@ describe('input-checkbox Sistema de Validacion Exitosa', () => {
         id="acepto"
         name="acepto"
         label="Acepto los terminos y condiciones"
-        .validation=${{ required: true }}
-        @on-input-acepto=${handleInputTest}>
+        .validation=${{ required: true }}>
       </input-checkbox>
     `);
     inputHtml = component.shadowRoot.querySelector('input');
   });
-
-  function handleInputTest(event) {
-    return event.detail;
-  }
 
   it('Error por campo requerido', async () => {
     //se simula el evento de input 2 veces, para marcar y desmarcar el checkbox
@@ -89,7 +78,7 @@ describe('input-checkbox Envia los Eventos al Componente Padre', () => {
         name="acepto"
         label="Acepto los terminos y condiciones"
         .validation=${{ required: true }}
-        @on-input-acepto=${handleInputTest}>
+        @on-checked-acepto=${handleInputTest}>
       </input-checkbox>
     `);
     inputHtml = component.shadowRoot.querySelector('input');
@@ -97,7 +86,7 @@ describe('input-checkbox Envia los Eventos al Componente Padre', () => {
 
   it('El Evento Custom retorna el Valor ingresado al input', async () => {
 
-    component.addEventListener('on-input-acepto', (e) => {
+    component.addEventListener('on-checked-acepto', (e) => {
       expect(e.detail.value).to.be.true;
       expect(e.detail.valid).to.be.true;
     });
@@ -107,17 +96,16 @@ describe('input-checkbox Envia los Eventos al Componente Padre', () => {
   });
 
   it('El Evento Custom retorna valid=false en caso de error', async () => {
-
-    component.addEventListener('on-input-acepto', (e) => {
+    component.checked = true;
+    component.addEventListener('on-checked-acepto', (e) => {
       expect(e.detail.value).to.be.false;
       expect(e.detail.valid).to.be.false;
     });
 
     inputHtml.dispatchEvent(new Event('change'));
-    inputHtml.dispatchEvent(new Event('change'));
     inputHtml.dispatchEvent(new Event('blur'));
   })
-})
+});
 
 describe('input-checkbox Recibe el evento clear del Componente Padre y reinicia su estado', () => {
   let component;
@@ -125,7 +113,7 @@ describe('input-checkbox Recibe el evento clear del Componente Padre y reinicia 
 
   beforeEach(async () => {
     function handleInputTest(event) {
-      return event.detail;
+      return event;
     }
 
     component = await fixture(html`
@@ -135,7 +123,7 @@ describe('input-checkbox Recibe el evento clear del Componente Padre y reinicia 
         label="Acepto los terminos y condiciones"
         .validation=${{ required: true }}
         .clear=${false}
-        @on-input-acepto=${handleInputTest}>
+        @on-checked-acepto=${handleInputTest}>
       </input-checkbox>
     `);
     inputHtml = component.shadowRoot.querySelector('input');
@@ -143,24 +131,19 @@ describe('input-checkbox Recibe el evento clear del Componente Padre y reinicia 
 
   it('El Evento del padre llega a Input-checkbox', async () => {
 
-    component.addEventListener('on-input-acepto', async (e) => {
-      //Padre recibe el valid y value correctos
-      expect(e.detail.value).to.be.true;
-      expect(e.detail.valid).to.be.true;
-      //Se valida estado actual del input-checkbox
+      inputHtml.checked = true;
+      inputHtml.dispatchEvent(new Event('change'));
+      // Verificar que el input está checked
       expect(component.checked).to.be.true;
-      expect(component.id).to.equal('acepto');
-      //padre ordena el clear
-      inputHtml.clear = true;
+  
+      // El padre envia el evento clear
+      component.clear = true;
       await component.updateComplete;
-      //validamos que el Evento clear llego y que cambio el value a ''
+  
+      // Verifica que clear es true y que checked ha cambiado a false
       expect(component.clear).to.be.true;
       expect(component.checked).to.be.false;
-    });
-
-    inputHtml.dispatchEvent(new Event('change'));
-    inputHtml.dispatchEvent(new Event('blur'));
-  })
+  });
 })
 
 describe('Renderizados correctos de Elementos', () => {
@@ -252,7 +235,4 @@ describe('Renderizados correctos de Elementos', () => {
     const inputWithError = component.shadowRoot.querySelector('input');
     expect(inputWithError.classList['0']).to.equal('invalid');
   });
-
-
-
 })

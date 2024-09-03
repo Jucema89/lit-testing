@@ -56,7 +56,7 @@ export class InputRadioAppComponent extends LitElement {
     this.dispatchEvent(new CustomEvent(name, {
       detail: {
         value: event.target.value,
-        valid: this._isValid
+        valid: event.target.value === '' ? false : this._isValid
       }
     }, {
       bubbles: true,

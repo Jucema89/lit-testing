@@ -79,8 +79,6 @@ export class TestingApp extends LitElement {
       }
     ];
 
-    console.log('clients = ',  this.clients)
-
     this.formData = {
       codigo: {
         value: '',
@@ -227,8 +225,8 @@ export class TestingApp extends LitElement {
               placeholder="Seleccione un estado civil"
               .disabled=${false}
               .clear=${this.clearForm}
-            .options=${this.optionsCivilState}
-            @on-select-estadocivil=${(e) => this._handleInput(e, 'estadocivil')}>
+              .options=${this.optionsCivilState}
+              @on-select-estadocivil=${(e) => this._handleInput(e, 'estadocivil')}>
             </select-input>
           </div>
         </div>
@@ -276,7 +274,6 @@ export class TestingApp extends LitElement {
     return html`
     <client-list
       .clients=${this.clients}
-      .showClients=${this.showClients}
       @on-remove-client=${this._handleRemoveClient}
       @on-back-form=${this.viewClients}>
     </client-list>

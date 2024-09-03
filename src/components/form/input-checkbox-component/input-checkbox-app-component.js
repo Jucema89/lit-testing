@@ -30,7 +30,7 @@ export class InputCheckboxAppComponent extends LitElement {
       required: false,
     },
     this._dirty = false;
-    this.errorMessage = ''
+    this._errorMessage = ''
   }
 
   updated(changedProperties) {
@@ -69,7 +69,7 @@ export class InputCheckboxAppComponent extends LitElement {
     }
 
     if(this.validation.required && !this.checked){
-      this.errorMessage = 'El campo es requerido';
+      this._errorMessage = 'El campo es requerido';
       return false;
     }
 
@@ -101,7 +101,7 @@ export class InputCheckboxAppComponent extends LitElement {
   _renderErrorMessages(){
     return html`
       <div class="message">
-        <span class="message-error">⛔ ${this.errorMessage}</span>
+        <span class="message-error">⛔ ${this._errorMessage}</span>
       </div>
     `;
   }

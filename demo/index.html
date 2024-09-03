@@ -17,17 +17,13 @@
     <div class="layer"></div>
     <div class="layer"></div>
     <div class="layer"></div>
- 
 
   <script type="module">
     import { html, render } from 'lit';
     import '../testing-app.js';
-
-    const header = 'Hello owc World!';
     render(
       html`
-        <testing-app .header=${header}>
-          some light-dom
+        <testing-app>
         </testing-app>
       `,
       document.querySelector('#demo')

@@ -23,11 +23,23 @@ export class ClientListComponent extends LitElement {
   }
 
   goBack(){
-    this.dispatchEvent(new CustomEvent('on-back-form', { detail: true }))
+    this.dispatchEvent(new CustomEvent('on-back-form', 
+      { detail: true }, 
+      {
+      bubbles: true,
+      composed: true
+    }))
   }
 
-  _removeClient(id){
-    this.dispatchEvent(new CustomEvent('on-remove-client', { detail: id }));
+  _removeClient(id, e){
+    e.stopPropagation();
+    this.dispatchEvent(new CustomEvent('on-remove-client', 
+      { detail: id },
+      {
+        bubbles: true,
+        composed: true
+      } 
+    ));
   }
 
   _setClient(client){
@@ -40,7 +52,7 @@ export class ClientListComponent extends LitElement {
 
   render() {
     return html`
-      <div class="clients">
+    <div class="clients">
       <h2>Lista de Clientes</h2>
       <ul class="clients-list scrollbar">
           ${this.clients.map((client) => html`
@@ -49,14 +61,11 @@ export class ClientListComponent extends LitElement {
                  ${user}
                 <span><b>${client['nombre'].value}</b></span>
                 <span>${this._getYears(client['bornDate'].value)} años</span>
-                <button class="remove" @click=${() => this._removeClient(client['id'])}>
+                <button class="remove" @click=${(e) => this._removeClient(client['id'], e)}>
                   ${trash}
                 </button>
               </div>
-                ${this.oneClient.id === client['id'] ? html`
-                  ${this._renderClientDetail()}
-                  ` : ''
-                }
+                ${this._renderClientDetail()}
             </li>
           `)}
       </ul>
@@ -66,11 +75,16 @@ export class ClientListComponent extends LitElement {
           Regresar
         </button>
       </div>
-      </div>
+    </div>
     `;
   }
 
   _renderClientDetail(){
+
+    if (!this.oneClient || !this.oneClient.nombre || !this.oneClient.nombre.value) {
+      return html``
+    }
+
     return  html`
       <div class="card-client">
         <h2>Detalle del Cliente</h2>
