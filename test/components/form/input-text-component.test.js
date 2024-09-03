@@ -1,8 +1,8 @@
 import { html } from 'lit';
 import { fixture, expect } from '@open-wc/testing';
-import '../../src/components/input-text-component/input-text-app-component.js';
+import '../../../src/components/form/input-text-component/input-text-app-component';
 
-describe('input-text-app Incializa comportamientos básicos', () => {
+describe('input-text Incializa comportamientos básicos', () => {
   let component;
   let inputHtml;
 
@@ -13,13 +13,13 @@ describe('input-text-app Incializa comportamientos básicos', () => {
     }
 
     component = await fixture(html`
-      <input-text-app
+      <input-text
         id="nombre"
         name="nombre"
         label="Nombre"
         .validation=${{ required: true }}
         @on-input-nombre=${handleInputTest}>
-      </input-text-app>
+      </input-text>
     `);
     inputHtml = component.shadowRoot.querySelector('input');
   });
@@ -28,9 +28,6 @@ describe('input-text-app Incializa comportamientos básicos', () => {
     expect(component.id).to.equal('nombre');
     expect(component.name).to.equal('nombre');
     expect(component.disabled).to.be.false;
-    expect(component._dirty).to.be.false;
-    expect(component._runValidate).to.be.false;
-    expect(component._errorMessage).to.equal('');
   });
 
   it('Validación de campo requerido', async () => {
@@ -38,23 +35,24 @@ describe('input-text-app Incializa comportamientos básicos', () => {
     inputHtml.dispatchEvent(new Event('input'));
     inputHtml.dispatchEvent(new Event('blur'));
     await component.updateComplete;
-    expect(component._errorMessage).to.equal('El campo es requerido');
+    const messageErrorHtml = component.shadowRoot.querySelector('.message-error');
+    expect(messageErrorHtml.textContent).to.equal('⛔ El campo es requerido');
   });
 })
 
-describe('input-text-app Sistema de Validaciones Exitosas', () => {
+describe('input-text Sistema de Validaciones Exitosas', () => {
   let component;
   let inputHtml;
 
   beforeEach(async () => {
     component = await fixture(html`
-      <input-text-app
+      <input-text
         id="nombre"
         name="nombre"
         label="Nombre"
         .validation=${{ required: true, minLength: 3, maxLength: 10 }}
         @on-input-nombre=${handleInputTest}>
-      </input-text-app>
+      </input-text>
     `);
     inputHtml = component.shadowRoot.querySelector('input');
   });
@@ -68,8 +66,8 @@ describe('input-text-app Sistema de Validaciones Exitosas', () => {
     inputHtml.dispatchEvent(new Event('input'));
     inputHtml.dispatchEvent(new Event('blur'));
     await component.updateComplete;
-    
-    expect(component._errorMessage).to.equal('');
+    const messageErrorHtml = component.shadowRoot.querySelector('.message-error');
+    expect(messageErrorHtml).to.be.null;
   });
 
   it('Validación exitosa de campo con longitud máxima', async () => {
@@ -79,23 +77,24 @@ describe('input-text-app Sistema de Validaciones Exitosas', () => {
 
     await component.updateComplete;
 
-    expect(component._errorMessage).to.equal('');
+    const messageErrorHtml = component.shadowRoot.querySelector('.message-error');
+    expect(messageErrorHtml).to.be.null;
   });
 })
 
-describe('input-text-app Sistema de Validaciones con Error', () => {
+describe('input-text Sistema de Validaciones con Error', () => {
   let component;
   let inputHtml;
 
   beforeEach(async () => {
     component = await fixture(html`
-      <input-text-app
+      <input-text
         id="nombre"
         name="nombre"
         label="Nombre"
         .validation=${{ required: true, minLength: 3, maxLength: 10 }}
         @on-input-nombre=${handleInputTest}>
-      </input-text-app>
+      </input-text>
     `);
     inputHtml = component.shadowRoot.querySelector('input');
   });
@@ -110,7 +109,8 @@ describe('input-text-app Sistema de Validaciones con Error', () => {
     inputHtml.dispatchEvent(new Event('blur'));
 
     await component.updateComplete;
-    expect(component._errorMessage).to.equal('El campo debe tener al menos 3 caracteres');
+    const messageErrorHtml = component.shadowRoot.querySelector('.message-error');
+    expect(messageErrorHtml.textContent).to.equal('⛔ El campo debe tener al menos 3 caracteres');
   });
 
   it('Validación exitosa de campo con longitud máxima', async () => {
@@ -120,11 +120,12 @@ describe('input-text-app Sistema de Validaciones con Error', () => {
 
     await component.updateComplete;
 
-    expect(component._errorMessage).to.equal('El campo debe tener menos de 10 caracteres');
+    const messageErrorHtml = component.shadowRoot.querySelector('.message-error');
+    expect(messageErrorHtml.textContent).to.equal('⛔ El campo debe tener menos de 10 caracteres');
   });
 })
 
-describe('input-text-app Sistema de Validaciones con Expresiones Regulares', () => {
+describe('input-text Sistema de Validaciones con Expresiones Regulares', () => {
   let component;
   let inputHtml;
 
@@ -139,13 +140,13 @@ describe('input-text-app Sistema de Validaciones con Expresiones Regulares', () 
 
   it('Validación de Password exitoso mediante expresion regular', async () => {
     component = await fixture(html`
-      <input-text-app
+      <input-text
         id="nombre"
         name="nombre"
         label="Nombre"
         .validation=${{ required: true, pattern: expRegularPass }}
         @on-input-nombre=${handleInputTest}>
-      </input-text-app>
+      </input-text>
     `);
     inputHtml = component.shadowRoot.querySelector('input');
 
@@ -155,18 +156,19 @@ describe('input-text-app Sistema de Validaciones con Expresiones Regulares', () 
 
     await component.updateComplete;
 
-    expect(component._errorMessage).to.equal('');
+    const messageErrorHtml = component.shadowRoot.querySelector('.message-error');
+    expect(messageErrorHtml).to.be.null;
   });
 
   it('Error en Password mediante expresion regular', async () => {
     component = await fixture(html`
-      <input-text-app
+      <input-text
         id="nombre"
         name="nombre"
         label="Nombre"
         .validation=${{ required: true, pattern: expRegularPass }}
         @on-input-nombre=${handleInputTest}>
-      </input-text-app>
+      </input-text>
     `);
     inputHtml = component.shadowRoot.querySelector('input');
 
@@ -176,18 +178,19 @@ describe('input-text-app Sistema de Validaciones con Expresiones Regulares', () 
 
     await component.updateComplete;
 
-    expect(component._errorMessage).to.equal('El campo no cumple con el formato requerido');
+    const messageErrorHtml = component.shadowRoot.querySelector('.message-error');
+    expect(messageErrorHtml.textContent).to.equal('⛔ El campo no cumple con el formato requerido')
   });
 
   it('Error en Email mediante expresion regular', async () => {
     component = await fixture(html`
-      <input-text-app
+      <input-text
         id="nombre"
         name="nombre"
         label="Nombre"
         .validation=${{ required: true, pattern: expRegularEmail }}
         @on-input-nombre=${handleInputTest}>
-      </input-text-app>
+      </input-text>
     `);
     inputHtml = component.shadowRoot.querySelector('input');
 
@@ -197,11 +200,12 @@ describe('input-text-app Sistema de Validaciones con Expresiones Regulares', () 
       
     await component.updateComplete;
 
-    expect(component._errorMessage).to.equal('El campo no cumple con el formato requerido');
+    const messageErrorHtml = component.shadowRoot.querySelector('.message-error');
+    expect(messageErrorHtml.textContent).to.equal('⛔ El campo no cumple con el formato requerido');
   });
 })
 
-describe('input-text-app Envia los Eventos al Componente Padre', () => {
+describe('input-text Envia los Eventos al Componente Padre', () => {
   let component;
   let inputHtml;
 
@@ -212,13 +216,13 @@ describe('input-text-app Envia los Eventos al Componente Padre', () => {
     }
 
     component = await fixture(html`
-      <input-text-app
+      <input-text
         id="nombre"
         name="nombre"
         label="Nombre"
         .validation=${{ required: true }}
         @on-input-nombre=${handleInputTest}>
-      </input-text-app>
+      </input-text>
     `);
     inputHtml = component.shadowRoot.querySelector('input');
   });
@@ -233,9 +237,7 @@ describe('input-text-app Envia los Eventos al Componente Padre', () => {
 
     inputHtml.value = valueToSet;
     inputHtml.dispatchEvent(new Event('input'));
-
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
+    inputHtml.dispatchEvent(new Event('blur'));
   });
 
   it('El Evento Custom retorna valid=false en caso de error', async () => {
@@ -245,24 +247,68 @@ describe('input-text-app Envia los Eventos al Componente Padre', () => {
       expect(e.detail.valid).to.equal(false);
     });
 
-    inputHtml.value = '';
+    inputHtml.value = ' ';
     inputHtml.dispatchEvent(new Event('input'));
     inputHtml.dispatchEvent(new Event('blur'));
-    
-    await new Promise(resolve => setTimeout(resolve, 1000));
+  })
+})
+
+describe('input-text Recibe el evento clear del Componente Padre y reinicia su estado', () => {
+  let component;
+  let inputHtml;
+
+  beforeEach(async () => {
+    function handleInputTest(event) {
+      return event.detail;
+    }
+
+    component = await fixture(html`
+      <input-text
+        id="nombre"
+        name="nombre"
+        label="Nombre"
+        .validation=${{ required: true }}
+        .clear=${false}
+        @on-input-nombre=${handleInputTest}>
+      </input-text>
+    `);
+    inputHtml = component.shadowRoot.querySelector('input');
   });
+
+  it('El Evento del padre llega a Input-Text', async () => {
+    const valueToSet = 'Jose Pepe'
+
+    component.addEventListener('on-input-nombre', async (e) => {
+      //Padre recibe el valid y value correctos
+      expect(e.detail.value).to.equal(valueToSet);
+      expect(e.detail.valid).to.equal(true);
+      //Se valida estado actual del input-text
+      expect(component.value).to.equal(valueToSet);
+      expect(component.id).to.equal('nombre');
+      //padre ordena el clear
+      component.clear = true;
+      await component.updateComplete;
+      //validamos que el Evento clear llego y que cambio el value a ''
+      expect(component.clear).to.be.true;
+      expect(component.value).to.equal('');
+    });
+
+    inputHtml.value = valueToSet;
+    inputHtml.dispatchEvent(new Event('input'));
+    inputHtml.dispatchEvent(new Event('blur'));
+  })
 })
 
 describe('Renderizados correctos de Elementos', () => {
 
   it('El label muestra el * al ser requerido', async () => {
     const component = await fixture(html`
-      <input-text-app
+      <input-text
         id="nombre"
         name="nombre"
         label="Nombre"
         .validation=${{ required: true }}>
-      </input-text-app>
+      </input-text>
     `);
     const labelHtml = component.shadowRoot.querySelector('.label');
     expect(labelHtml.textContent.trim()).to.equal('Nombre *');
@@ -270,12 +316,12 @@ describe('Renderizados correctos de Elementos', () => {
 
   it('El label NO muestra el * de requerido', async () => {
     const component = await fixture(html`
-      <input-text-app
+      <input-text
         id="nombre"
         name="nombre"
         label="Nombre"
         .validation=${{ required: false }}>
-      </input-text-app>
+      </input-text>
     `);
     const labelHtml = component.shadowRoot.querySelector('.label');
     expect(labelHtml.textContent.trim()).to.equal('Nombre');
@@ -283,12 +329,12 @@ describe('Renderizados correctos de Elementos', () => {
 
   it('En caso de Error se renderiza el mensaje', async () => {
     const component = await fixture(html`
-      <input-text-app
+      <input-text
         id="nombre"
         name="nombre"
         label="Nombre"
         .validation=${{ required: true }}>
-      </input-text-app>
+      </input-text>
     `);
     const inputHtml = component.shadowRoot.querySelector('input');
 
@@ -298,17 +344,17 @@ describe('Renderizados correctos de Elementos', () => {
 
     await component.updateComplete;
     const messageErrorHtml = component.shadowRoot.querySelector('.message-error');
-    expect(messageErrorHtml.textContent.trim()).to.equal('⛔ El campo es requerido');
+    expect(messageErrorHtml.textContent).to.equal('⛔ El campo es requerido');
   });
 
   it('En caso de Error el label es de Color Rojo', async () => {
     const component = await fixture(html`
-      <input-text-app
+      <input-text
         id="nombre"
         name="nombre"
         label="Nombre"
         .validation=${{ required: true }}>
-      </input-text-app>
+      </input-text>
     `);
     const inputHtml = component.shadowRoot.querySelector('input');
   
@@ -323,12 +369,12 @@ describe('Renderizados correctos de Elementos', () => {
 
   it('En caso de Error el borde del input es de Color Rojo', async () => {
     const component = await fixture(html`
-      <input-text-app
+      <input-text
         id="nombre"
         name="nombre"
         label="Nombre"
         .validation=${{ required: true }}>
-      </input-text-app>
+      </input-text>
     `);
 
     const inputHtml = component.shadowRoot.querySelector('input');

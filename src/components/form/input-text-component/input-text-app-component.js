@@ -53,30 +53,19 @@ export class InputTextAppComponent extends LitElement {
     }
   }
 
-  _timerAwait(time){
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve();
-      }, time)
-    })
-  }
-
-  async _handleValue(e){
+  _handleValue(e){
     const name = `on-input-${this.id}`
     this.value = e.target.value;
-    let timer = 800;
-
-    await this._timerAwait(timer)
     this._dirty = true;
-      this.dispatchEvent(new CustomEvent(name, {
-        detail: {
-          value: this.value,
-          valid: this._isValid
-        }
+    this.dispatchEvent(new CustomEvent(name, {
+      detail: {
+        value: this.value.trim(),
+        valid: this.value.trim() === '' ? false : this._isValid
+      }
       }, {
-        bubbles: true,
-        composed: true
-      }));
+      bubbles: true,
+      composed: true
+    }));
   }
 
   get _isValid(){

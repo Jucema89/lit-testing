@@ -54,10 +54,11 @@ export class InputDateAppComponent extends LitElement {
     this._dirty = true;
     const name = `on-date-${this.id}`
     this.value = e.target.value;
+    //console.log('💀 e.target.value = ', e.target.value)
     this.dispatchEvent(new CustomEvent(name, {
       detail: {
         value: this.value,
-        valid: this._isValid
+        valid: this.value === '' ? false : this._isValid
       }
     }, {
       bubbles: true,
@@ -74,11 +75,11 @@ export class InputDateAppComponent extends LitElement {
       this._errorMessage = 'El campo es requerido';
       return false;
     }
-    if(this.validation.minDate && this.value < this.validation.minDate){
+    if(this.validation.minDate && new Date(this.value) < new Date(this.validation.minDate)){
       this._errorMessage = `La fecha debe ser mayor a ${this.validation.minDate}`;
       return false;
     }
-    if(this.validation.maxDate && this.value > this.validation.maxDate){
+    if(this.validation.maxDate && new Date(this.value) > new Date(this.validation.maxDate)){
       this._errorMessage = `La fecha debe ser menor a ${this.validation.maxDate}`;
       return false
     }
@@ -102,7 +103,7 @@ export class InputDateAppComponent extends LitElement {
         name=${this.name} 
         type="date"
         ?disabled=${this.disabled} 
-        @change=${this._handleValue}
+        @input=${this._handleValue}
         @blur=${() => this._dirty = true}
         .value=${this.value}
         .min=${
