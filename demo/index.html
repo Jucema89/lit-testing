@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <link rel="stylesheet" href="./index.css">
+  <script type="module" src="../testing-app.js"></script>
 </head>
 <body class="bg">
  
@@ -17,17 +18,7 @@
     <div class="layer"></div>
     <div class="layer"></div>
     <div class="layer"></div>
-
-  <script type="module">
-    import { html, render } from 'lit';
-    import '../testing-app.js';
-    render(
-      html`
-        <testing-app>
-        </testing-app>
-      `,
-      document.querySelector('#demo')
-    );
-  </script>
+    <testing-app>
+    </testing-app>
 </body>
 </html>

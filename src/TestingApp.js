@@ -137,6 +137,7 @@ export class TestingApp extends LitElement {
   }
 
   _handleRemoveClient(event){
+    console.log('🔥 event', event)
     this.clients = [...this.clients.filter((client) => client.id !== event.detail)];
   }
 
@@ -150,10 +151,8 @@ export class TestingApp extends LitElement {
 
   _renderForm() {
     return html`
-      <form class=${this.showClients ? 'rotate' : ''}>
-        <h2>
-          Registro de Clientes
-        </h2>
+      <form>
+        <h2>Registro de Clientes</h2>
         <div>
           <input-number
             id="codigo"
@@ -280,3 +279,5 @@ export class TestingApp extends LitElement {
     `
   }
 }
+
+window.customElements.define('testing-app', TestingApp);

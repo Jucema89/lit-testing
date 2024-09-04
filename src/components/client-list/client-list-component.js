@@ -65,7 +65,7 @@ export class ClientListComponent extends LitElement {
                   ${trash}
                 </button>
               </div>
-                ${this._renderClientDetail()}
+                ${this.oneClient.id === client['id'] ? this._renderClientDetail() : ''}
             </li>
           `)}
       </ul>

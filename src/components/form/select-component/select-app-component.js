@@ -83,6 +83,7 @@ export class SelectAppComponent extends LitElement {
         ${this.label} ${this.validation.required ? '*' : ''}
       </label>
       <select
+        id=${this.id}
         class=${this._isValid ? 'valid' : 'invalid'}
         name=${this.name} 
         ?disabled=${this.disabled} 
