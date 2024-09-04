@@ -160,52 +160,19 @@ describe('App Test Incializa comportamientos básicos', () => {
     form = component.shadowRoot.querySelector('form');
     title = component.shadowRoot.querySelector('h2');
   });
-})
 
-//   it('Estado inicial cargado', async () => {
-//     await component.updateComplete;
-//     expect(component.clients).to.be.an('array').lengthOf(4);
-//     expect(component.formData).to.deep.equal({
-//       codigo: {
-//         value: '',
-//         valid: false
-//       },
-//       nombre: {
-//         value: '',
-//         valid: false
-//       },
-//       apellidos: {
-//         value: '',
-//         valid: false
-//       },
-//       typeClient: {
-//         value: '',
-//         valid: false
-//       },
-//       correo: {
-//         value: '',
-//         valid: false
-//       },
-//       bornDate: {
-//         value: '',
-//         valid: false
-//       },
-//       estadocivil: {
-//         value: '',
-//         valid: false
-//       },
-//       acepto: {
-//         value: false,
-//         valid: false
-//       }
-//     });
-//     expect(form).to.exist;
-//     expect(title.textContent.trim()).to.equal('Registro de Clientes');
-//   })
-// })
+  it('Tiene un formulario', async () => {
+    await component.updateComplete;
+    expect(form).to.exist;
+    expect(form).to.be.an.instanceOf(HTMLFormElement);
+    expect(title).to.exist;
+    expect(title.textContent.trim()).to.equal('Registro de Clientes');
+  });
+})
 
 describe('Formulario Recibe inputs y reacciona correctamente', () => {
   let component;
+  let form;
 
   beforeEach(async () => {
     component = await fixture(html`
@@ -213,51 +180,53 @@ describe('Formulario Recibe inputs y reacciona correctamente', () => {
       .clients=${[ ...MOCKS_USERS]}>
       </testing-app>
     `);
+
+    form = component.querySelector('form');
+
   });
 
+  function setValue(selector, value, type) {
+    return new Promise((resolve, reject) => {
+      const input = component.shadowRoot.querySelector(selector);
+      if(input){
+        input.value = value;
+        // input.dispatchEvent(new CustomEvent('change'))
+        // input.dispatchEvent(new CustomEvent('blur'))
+        input.dispatchEvent(new CustomEvent(type, {
+          detail: {
+            value: value,
+            valid: true
+          }
+        }, {
+          bubbles: true,
+          composed: true
+        }));
+        resolve(true);
+      } else {
+        console.error('🔥 No se encontro el selector: ', selector);
+        reject(false);
+      }
+     
+    })
+  }
+
   it('Envio de Formulario Correcto con Datos Correctos', async () => {
-    await component.updateComplete;
-
-    const inputCodigoBase = component.shadowRoot.querySelector('.card');
-    console.log('🛸 input log = ', inputCodigoBase)
-    const inp = inputCodigoBase.querySelector('input-number').shadowRoot.querySelector('input');
-    inp.value = '005';
-    inp.dispatchEvent(new Event('input'));
-
-    const inputNombre = component.shadowRoot.querySelector('input-text[name="nombre"]').shadowRoot.querySelector('input');
-    inputNombre.value = 'Carlos';
-    inputNombre.dispatchEvent(new Event('input'));
-
-    const inputApellidos = component.shadowRoot.querySelector('input-text[name="apellidos"]').shadowRoot.querySelector('input');
-    inputApellidos.value = 'Ramirez';
-    inputApellidos.dispatchEvent(new Event('input'));
-    // Para los selectores, asegúrate de que también puedas acceder a ellos adecuadamente
-    const selectTypeClient = component.shadowRoot.querySelector('select-input[name="typeClient"]').shadowRoot.querySelector('select');
-    selectTypeClient.value = 'Regular';
-    selectTypeClient.dispatchEvent(new Event('change'));
-
-    const inputCorreo = component.shadowRoot.querySelector('input-text[name="correo"]').shadowRoot.querySelector('input');
-    inputCorreo.value = 'mail@mail.com';
-    inputCorreo.dispatchEvent(new Event('input'));
-
-    const inputBornDate = component.shadowRoot.querySelector('input-date[name="bornDate"]').shadowRoot.querySelector('input');
-    inputBornDate.value = '1990-05-20';
-    inputBornDate.dispatchEvent(new Event('input'));
-
-    const selectEstadoCivil = component.shadowRoot.querySelector('select-input[name="estadocivil"]').shadowRoot.querySelector('select');
-    selectEstadoCivil.value = 'Soltero';
-    selectEstadoCivil.dispatchEvent(new Event('change'));
-
-    const checkboxAcepto = component.shadowRoot.querySelector('input-checkbox[name="acepto"]').shadowRoot.querySelector('input');
-    checkboxAcepto.checked = true;
-    checkboxAcepto.dispatchEvent(new Event('change'));
-
-    // Finalmente, disparar el evento de clic en el botón de envío
+    await setValue('input-number', '005', 'on-input-codigo');
+    await setValue('input-text[name="nombre"]', 'Carlos', 'on-input-nombre');
+    await setValue('input-text[name="apellidos"]', 'Ramirez', 'on-input-apellidos');
+    await setValue('input-text[name="correo"]', 'mail@mail.com', 'on-input-correo')
+    await setValue('input-radio[name="typeClient"]', 'int', 'on-radio-typeClient');
+    await setValue('input-date[name="bornDate"]', '1990-05-20', 'on-date-bornDate');
+    await setValue('select-input[id="estadocivil"]', 'casado', 'on-select-estadocivil');
+    await setValue('input-checkbox[name="acepto"]', true, 'on-checked-acepto');
     const buttonSend = component.shadowRoot.querySelector('button.send');
+    //se espera que el boton se habilite ya que los campos tienen data correcta 
+    expect(buttonSend.disabled).to.be.false;
     buttonSend.click();
-
     await component.updateComplete;
+    //se Valida que el nuevo cliente se haya agregado a la lista
     expect(component.clients).to.be.an('array').lengthOf(5);
+    //se valida que el nuevo cliente tenga los datos correctos
     expect(component.clients[4]).to.deep.equal({
       id: 5,
       codigo: {
@@ -273,7 +242,7 @@ describe('Formulario Recibe inputs y reacciona correctamente', () => {
         valid: true
       },
       typeClient: {
-        value: 'Regular',
+        value: 'int',
         valid: true
       },
       correo: { 
@@ -285,7 +254,7 @@ describe('Formulario Recibe inputs y reacciona correctamente', () => {
         valid: true
       },
       estadocivil: {
-        value: 'Soltero',
+        value: 'casado',
         valid: true
       },
       acepto: {
@@ -294,4 +263,117 @@ describe('Formulario Recibe inputs y reacciona correctamente', () => {
       }
     });
   })
+})
+
+describe('Renderizado de Usuarios Registrados', () => {
+
+  // let componentForm;
+  // let userList;
+
+  // beforeEach(async () => {
+  //   userList = MOCKS_USERS
+  //   componentForm = await fixture(html`
+  //     <testing-app
+  //     .clients=${userList}>
+  //     </testing-app>
+  //   `);
+  // })
+
+  it('Al dar click al boton de Ver Clientes se renderiza la lista de clientes', async () => {
+
+    const componentForm = await fixture(html`
+      <testing-app
+      .clients=${[...MOCKS_USERS]}>
+      </testing-app>
+    `);
+
+    expect(componentForm).to.exist;
+    const buttonViewClients = componentForm.shadowRoot.querySelector('button.change');
+    buttonViewClients.click();
+    await componentForm.updateComplete;
+    
+    const componentListClients = await fixture(html`
+      <client-list
+      .clients=${[...MOCKS_USERS]}>
+    </client-list>
+    `);
+
+    expect(componentListClients).to.exist;
+    const title = componentListClients.shadowRoot.querySelector('.clients h2');
+    expect(title.textContent.trim()).to.equal('Lista de Clientes');
+  })
+
+  it('Al dar click en eliminar cliente este es eliminado', async () => {
+    const USERS = MOCKS_USERS
+    const componentForm = await fixture(html`
+      <testing-app
+      .clients=${USERS}>
+      </testing-app>
+    `);
+
+    const componentListClients = await fixture(html`
+      <client-list
+        .clients=${USERS}>
+      </client-list>
+    `);
+
+    expect(componentForm).to.exist;
+    expect(componentListClients).to.exist;
+
+    const buttonViewClients = componentForm.shadowRoot.querySelector('button.change');
+    buttonViewClients.click();
+
+    console.log('✅ buttonViewClients = ', buttonViewClients)
+    
+    await componentForm.updateComplete;
+
+    expect(componentForm.clients).to.be.an('array').lengthOf(4);
+
+    const firstLiBTNremove = componentListClients.shadowRoot.querySelector('.clients-list li:first-child button');
+    console.log('✅ firstLiBTNremove = ', firstLiBTNremove)
+    firstLiBTNremove.click();
+    
+    componentListClients.dispatchEvent(new CustomEvent('on-remove-client', {
+      detail: 1
+    }, {
+      bubbles: true,
+      composed: true
+    }))
+   
+    await componentListClients.updateComplete;
+    await componentForm.updateComplete;
+    expect(componentListClients.clients).to.be.an('array').lengthOf(3);
+  })
+
+  // it('Al dar click en eliminar cliente este es eliminado', async () => {
+
+  //   const buttonViewClients = componentForm.shadowRoot.querySelector('button.change');
+  //   buttonViewClients.click();
+  //   await componentForm.updateComplete;
+
+  //   //const initialClientCount = userList.length; // Debería ser 4 basado en MOCKS_USERS
+  //   // console.log('✅ initialClientCount = ', initialClientCount)
+  //   // const clientToRemove = userList[0].id; // ID del primer cliente
+  //   // const componentListClients = await fixture(html`
+  //   //   <client-list .clients=${userList}></client-list>
+  //   // `);
+  //  // await componentListClients.updateComplete;
+  
+  //   // Disparar el evento de eliminación manualmente
+  //   componentListClients.dispatchEvent(new CustomEvent('on-remove-client', {
+  //     detail: clientToRemove,
+  //     bubbles: true, 
+  //     composed: true
+  //   }));
+  
+  //   // Esperar a que los cambios se procesen
+  //   //await componentListClients.updateComplete;
+  //   await componentForm.updateComplete;
+  
+  //   // Verificar que el número de clientes ha disminuido
+  //   console.log('✅ componentListClients.clients.length = ', componentForm.clients.length)
+  //   expect(componentForm.clients.length).to.equal(initialClientCount - 1);
+  // });
+
+
 })
