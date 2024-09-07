@@ -304,7 +304,10 @@ describe('Renderizado de Usuarios Registrados', () => {
   })
 
   it('Al dar click en eliminar cliente este es eliminado', async () => {
-    const USERS = MOCKS_USERS
+    let USERS = MOCKS_USERS
+    function eventHandler(e){
+      console.log('🔥 eventHandler ', e)
+    }
     const componentForm = await fixture(html`
       <testing-app
       .clients=${USERS}>
@@ -323,15 +326,16 @@ describe('Renderizado de Usuarios Registrados', () => {
     const buttonViewClients = componentForm.shadowRoot.querySelector('button.change');
     buttonViewClients.click();
 
-    console.log('✅ buttonViewClients = ', buttonViewClients)
+    console.log('✅ buttonViewClients = ', buttonViewClients)   
     
     await componentForm.updateComplete;
+    await componentListClients.updateComplete;
 
     expect(componentForm.clients).to.be.an('array').lengthOf(4);
 
-    const firstLiBTNremove = componentListClients.shadowRoot.querySelector('.clients-list li:first-child button');
-    console.log('✅ firstLiBTNremove = ', firstLiBTNremove)
-    firstLiBTNremove.click();
+    // const firstLiBTNremove = componentListClients.shadowRoot.querySelector('.clients-list li:first-child button');
+    // console.log('✅ firstLiBTNremove = ', firstLiBTNremove)
+    // firstLiBTNremove.click();
     
     componentListClients.dispatchEvent(new CustomEvent('on-remove-client', {
       detail: 1
@@ -339,6 +343,8 @@ describe('Renderizado de Usuarios Registrados', () => {
       bubbles: true,
       composed: true
     }))
+
+    //await new Promise((resolve) => setTimeout(resolv e, 1200));
    
     await componentListClients.updateComplete;
     await componentForm.updateComplete;

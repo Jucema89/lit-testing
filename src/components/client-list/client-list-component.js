@@ -32,7 +32,8 @@ export class ClientListComponent extends LitElement {
   }
 
   _removeClient(id, e){
-    e.stopPropagation();
+    //e.stopPropagation();
+    console.log('🦕 Remove Cient = ', e)
     this.dispatchEvent(new CustomEvent('on-remove-client', 
       { detail: id },
       {
